@@ -10,10 +10,23 @@ Estes mecanismos são imitados a partir de um processo evolucionário que envolv
 
 ## OPERADORES GENÉTICOS
 A seguir descrevemos quais operadores genéticos que foram adotados para o desenvolvimento do trabalho.
-- **Inicialização da população**: geração aleatória de um array de 8 posições constituidos por tuplas (coluna, linha) que representam a posição da rainha no tabuleiro;
-- **Avaliação**: a função objetiva do problema é de minimização, onde cada vez que a rainha esteja em conflito com outra o valor da função aumenta.
+- **Inicialização da população**: o individuo sera representado por um array de 8 posições, com os indices representando a linha e o seu conteudo a coluna do tabuleiro. Os individuos serão gerados de forma aleatória;
+- **Avaliação**: a função objetiva do problema é de minimização, onde cada vez que a rainha esteja em conflito com outra o valor da função aumenta;
 - **Seleção**: utilizamos o método da roleta;
-- **Cruzamento**: utilizamos como operador de cruzamento o OX2;
+- **Cruzamento**: utilizamos como operador de cruzamento por meio de um corte ou um swap simples;
 - **Mutação**: trocamos a posição de uma das rainhas para uma das casas vazia. Sua probabilidade é pequena;
-- **Busca Local**: utilizamos o algoritmo de busca local para gerar novos indivíduos mais aptos rapidamente;
 - **Atualização**: utilizamos o critério de elitismo para gerar a nova população.
+
+## COMO EXECUTAR?
+Argumentos:
+- **tipo_cruzamento (str)** = 'SWAP' ou 'CORTE';
+- **geracoes (int)** = quantidade de gerações;
+- **tam_populacao (int)** = tamanho da população inicial;
+- **taxa_cruzamento (float)** = quantidade de individuos que serão utilizados para o cruzamento;
+- **taxa_mutacao (float)** = probabilidade da ocorrência de mutação em um individuo;
+- **taxa_sobrevivencia (float)** = quantidade de individuo da população atual que se manterão para a nova população;
+
+Utilize o comando a seguir, substituindo os argumentos pelos seus respectivos valores desejados:
+```
+python ag_8_rainhas tipo_cruzamento geracoes tam_populacao taxa_cruzamento taxa_mutacao taxa_sobrevivencia
+```

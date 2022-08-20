@@ -1,6 +1,6 @@
-# O individuo sera representado por um array de 8 posições, constituido de tuplas (linha, coluna) que representa a posição da rainha no tabuleiro
 import random
 import numpy as np
+import sys
 
 
 def gerar_individuo() -> list:
@@ -59,28 +59,30 @@ def etapa_selecao(taxa_cruzamento: float, populacao: list):
     return selecao_populacao
 
 
-def etapa_cruzamento(selecao_populacao: list) -> list:
+def etapa_cruzamento(tipo_cruzamento: str, selecao_populacao: list) -> list:
     nova_populacao = []
-    # while len(selecao_populacao) > 0:
-    #     pai = selecao_populacao.pop(0)
-    #     mae = selecao_populacao.pop(0)
-    #     corte = random.randint(3,6)
-    #     filho_1 = pai[:corte] + mae[corte:]
-    #     filho_2 = mae[:corte] + pai[corte:]
-    #     nova_populacao.append(filho_1)
-    #     nova_populacao.append(filho_2)
-    while len(selecao_populacao) > 0:
-        pai = selecao_populacao.pop(0)
-        mae = selecao_populacao.pop(0)
-        corte_lista = random.sample(range(7),2)
-        filho_1 = pai.copy()
-        filho_2 = mae.copy()
-        for i in corte_lista:
-            aux = filho_1[i]
-            filho_1[i] = filho_2[i]
-            filho_2[i] = aux
-        nova_populacao.append(filho_1)
-        nova_populacao.append(filho_2)
+    if tipo_cruzamento == 'CORTE':
+        while len(selecao_populacao) > 0:
+            pai = selecao_populacao.pop(0)
+            mae = selecao_populacao.pop(0)
+            corte = random.randint(3,6)
+            filho_1 = pai[:corte] + mae[corte:]
+            filho_2 = mae[:corte] + pai[corte:]
+            nova_populacao.append(filho_1)
+            nova_populacao.append(filho_2)
+    else:
+        while len(selecao_populacao) > 0:
+            pai = selecao_populacao.pop(0)
+            mae = selecao_populacao.pop(0)
+            corte_lista = random.sample(range(7),2)
+            filho_1 = pai.copy()
+            filho_2 = mae.copy()
+            for i in corte_lista:
+                aux = filho_1[i]
+                filho_1[i] = filho_2[i]
+                filho_2[i] = aux
+            nova_populacao.append(filho_1)
+            nova_populacao.append(filho_2)
     return nova_populacao
         
 
@@ -105,28 +107,37 @@ def vetor_para_matriz(individuo: list) -> None:
     print(tabuleiro)
 
 
+def algoritmo_genetico(tipo_cruzamento = 'SWAP', geracoes = 100, tam_populacao = 200, taxa_cruzamento = 0.5, taxa_mutacao = 0.01, taxa_sobrevivencia = 0.5) -> int:
+    populacao_inicial = etapa_populacao_inicial(tam_populacao)
+    populacao = etapa_aptidao(populacao_inicial)
+    for _ in range(geracoes):   
+        selecao_populacao = etapa_selecao(taxa_cruzamento, populacao)
+        nova_populacao = etapa_cruzamento(tipo_cruzamento, selecao_populacao)
+        nova_populacao = etapa_mutacao(taxa_mutacao, nova_populacao)
+        populacao = etapa_atualizacao(taxa_sobrevivencia, populacao, nova_populacao)
+        populacao = etapa_aptidao(populacao)
+        if calcular_fitness(populacao[0]) >= 1.1:
+            print(populacao[0])
+            return 1
+    return 0
+
+
+def configuracao(argumentos: list) -> list:
+    config = []
+    try:     
+        if len(argumentos) == 7:
+            config = [argumentos[1]] + [int(arg) for arg in argumentos[2:4]] + [float(arg) for arg in argumentos[4:]]
+    except BaseException:
+        print('Configuração inválida\nIniciando Configuração padrão')
+    return config
+
+
 if __name__ == '__main__':
-    sucesso = 0
-    rodas = 10
-    for i in range(rodas):
+    otimo = 0
+    iteracao = 50
+    for i in range(iteracao):
         print(f'Rodando: {i}')
-        populacao_inicial = etapa_populacao_inicial(100)
-        populacao = etapa_aptidao(populacao_inicial)
-        geracoes = 100
-        for i in range(geracoes):   
-            selecao_populacao = etapa_selecao(0.5, populacao)
-            nova_populacao = etapa_cruzamento(selecao_populacao)
-            nova_populacao = etapa_mutacao(0.01, nova_populacao)
-            populacao = etapa_atualizacao(0.5, populacao, nova_populacao)
-            populacao = etapa_aptidao(populacao)
-            #print(f'Geracao: {i}\nMelhor Fitness: {calcular_fitness(populacao[0])}\nPior Fitness: {calcular_fitness(populacao[-1])}')
-            if calcular_fitness(populacao[0]) >= 1.1:
-                print(populacao[0])
-                sucesso += 1
-                break
-        # print('Solução:')
-        # print(populacao[0])
-        # vetor_para_matriz(populacao[0])
-    probabilidade = sucesso / rodas
-    falhas = 1 - probabilidade
-    print(f'Sucesso: {probabilidade}\nFalhas: {falhas}')
+        otimo += algoritmo_genetico(*configuracao(sys.argv))
+    sucesso = otimo / iteracao
+    falhas = 1 - sucesso
+    print(f'Sucesso: {sucesso}\nFalhas: {falhas}')
